@@ -6,7 +6,7 @@ import { TiltCard } from '@/components/ui/TiltCard';
 
 const BOOKS = [
   { id: 1, title: "Cosmos", author: "Carl Sagan", color: "from-purple-600 to-blue-600", rating: 4.9 },
-  { id: 2, title: "The Code", author: "Petzold", color: "from-blue-600 to-cyan-600", rating: 4.8 },
+  { id: 2, title: "The Code", author: "Charles Petzold", color: "from-blue-600 to-cyan-600", rating: 4.8 },
   { id: 3, title: "Sapiens", author: "Yuval Noah", color: "from-amber-600 to-orange-600", rating: 4.9 },
   { id: 4, title: "Atomic Habits", author: "James Clear", color: "from-emerald-600 to-green-600", rating: 4.7 },
 ];
@@ -19,9 +19,11 @@ export const LibrarySection = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <Reveal>
-            <h2 className="text-4xl font-bold text-white mb-2">Digital Library</h2>
-            <p className="text-slate-400">Curated resources powered by Sana-AI recommendations.</p>
+          <Reveal width="100%">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl font-bold text-white mb-2">Digital Library</h2>
+              <p className="text-slate-400">Curated resources powered by Sana-AI recommendations.</p>
+            </div>
           </Reveal>
           <Reveal delay={0.2}>
             <button className="flex items-center gap-2 text-brand-primary font-medium hover:text-brand-glow transition-colors">
@@ -30,9 +32,10 @@ export const LibrarySection = () => {
           </Reveal>
         </div>
 
+        {/* FIX: Added width="100%" to Reveal component so cards don't collapse */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {BOOKS.map((book, index) => (
-            <Reveal key={book.id} delay={index * 0.1}>
+            <Reveal key={book.id} delay={index * 0.1} width="100%">
               <TiltCard className="h-[400px] w-full rounded-2xl relative group cursor-pointer">
                 {/* Book Cover Gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${book.color} rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-500 shadow-2xl`} />
