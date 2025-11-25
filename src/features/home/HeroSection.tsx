@@ -4,19 +4,22 @@ import { motion } from 'framer-motion';
 import { ArrowRight, PlayCircle } from 'lucide-react';
 import Link from "next/link";
 import { Button } from '@/components/ui/Button';
+import { TechRings } from '@/components/ui/TechRings'; // <--- IMPORT THIS
 
 export const HeroSection = () => {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 bg-brand-dark">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-primary/20 rounded-full blur-[120px] animate-blob" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-accent/20 rounded-full blur-[120px] animate-blob animation-delay-2000" />
-        <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 w-[300px] h-[300px] bg-brand-glow/10 rounded-full blur-[100px] animate-pulse-slow" />
+      {/* 1. Deep Background (Blobs) */}
+      <div className="absolute inset-0 bg-brand-dark z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-primary/10 rounded-full blur-[120px] animate-blob" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-accent/10 rounded-full blur-[120px] animate-blob animation-delay-2000" />
       </div>
 
-      {/* FIX 1: Changed z-10 to z-20 to ensure buttons are above the gradient overlay */}
+      {/* 2. NEW: Tech Rings Component */}
+      <TechRings />
+
+      {/* 3. Main Content (High Z-Index) */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         
         <motion.div
@@ -60,7 +63,6 @@ export const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          {/* Link wrapping Button directly */}
           <Link href="/maintenance">
             <Button variant="primary" className="group text-lg px-8 py-4">
               Get Started
@@ -77,10 +79,8 @@ export const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* FIX 2: Added 'pointer-events-none' so clicks pass through this gradient */}
+      {/* 4. Overlay Gradients (Foreground) */}
       <div className="absolute bottom-0 w-full h-[200px] bg-gradient-to-t from-brand-dark to-transparent z-10 pointer-events-none" />
-      
-      {/* Background grid */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] z-0 pointer-events-none" />
     </section>
   );
