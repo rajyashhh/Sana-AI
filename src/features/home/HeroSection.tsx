@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, PlayCircle } from 'lucide-react';
+import Link from "next/link";
 import { Button } from '@/components/ui/Button';
 
 export const HeroSection = () => {
@@ -15,7 +16,8 @@ export const HeroSection = () => {
         <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 w-[300px] h-[300px] bg-brand-glow/10 rounded-full blur-[100px] animate-pulse-slow" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+      {/* FIX 1: Changed z-10 to z-20 to ensure buttons are above the gradient overlay */}
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -58,19 +60,27 @@ export const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          <Button variant="primary" className="group text-lg px-8 py-4">
-            Get Started 
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-          <Button variant="outline" className="text-lg px-8 py-4 group">
-            <PlayCircle className="w-5 h-5 mr-2 group-hover:text-brand-glow transition-colors" />
-            Watch Demo
-          </Button>
+          {/* Link wrapping Button directly */}
+          <Link href="/maintenance">
+            <Button variant="primary" className="group text-lg px-8 py-4">
+              Get Started
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+          
+          <Link href="/maintenance">
+            <Button variant="outline" className="text-lg px-8 py-4 group">
+              <PlayCircle className="w-5 h-5 mr-2 group-hover:text-brand-glow transition-colors" />
+              Watch Demo
+            </Button>
+          </Link>
         </motion.div>
       </div>
 
-      {/* Decorative Grid */}
-      <div className="absolute bottom-0 w-full h-[200px] bg-gradient-to-t from-brand-dark to-transparent z-10" />
+      {/* FIX 2: Added 'pointer-events-none' so clicks pass through this gradient */}
+      <div className="absolute bottom-0 w-full h-[200px] bg-gradient-to-t from-brand-dark to-transparent z-10 pointer-events-none" />
+      
+      {/* Background grid */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] z-0 pointer-events-none" />
     </section>
   );

@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { Book, Star, ArrowRight } from 'lucide-react';
+import Link from 'next/link'; // Import Link
 import { Reveal } from '@/components/ui/Reveal';
 import { TiltCard } from '@/components/ui/TiltCard';
 
@@ -26,9 +27,10 @@ export const LibrarySection = () => {
             </div>
           </Reveal>
           <Reveal delay={0.2}>
-            <button className="flex items-center gap-2 text-brand-primary font-medium hover:text-brand-glow transition-colors">
+            {/* Added Link to Maintenance Page here as well */}
+            <Link href="/maintenance" className="flex items-center gap-2 text-brand-primary font-medium hover:text-brand-glow transition-colors">
               View Full Catalog <ArrowRight size={16} />
-            </button>
+            </Link>
           </Reveal>
         </div>
 
@@ -57,9 +59,13 @@ export const LibrarySection = () => {
                     <p className="text-white/80 text-sm mb-4 translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">{book.author}</p>
                     
                     <div className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-100">
-                      <button className="w-full py-3 bg-white text-brand-dark font-bold rounded-lg shadow-lg hover:bg-slate-100">
+                      {/* Converted Button to Link */}
+                      <Link 
+                        href="/maintenance" 
+                        className="w-full py-3 bg-white text-brand-dark font-bold rounded-lg shadow-lg hover:bg-slate-100 block text-center transition-colors"
+                      >
                         Read Now
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
