@@ -1,18 +1,20 @@
+"use client";
 import React from 'react';
 import { clsx } from 'clsx';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+// Fix: Extend HTMLMotionProps instead of React.ButtonHTMLAttributes
+interface ButtonProps extends HTMLMotionProps<"button"> {
   variant?: 'primary' | 'outline' | 'accent';
   children: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({ variant = 'primary', className, children, ...props }) => {
-  const baseStyles = "px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2";
+  const baseStyles = "px-6 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-2 justify-center";
   
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-500/30",
-    accent: "bg-brand-accent text-brand-dark hover:bg-yellow-300 shadow-lg shadow-yellow-500/30", // Like Yellow.ai
+    primary: "bg-brand-primary text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30",
+    accent: "bg-brand-accent text-white hover:bg-violet-500 shadow-lg shadow-violet-500/30",
     outline: "border border-slate-600 text-slate-300 hover:border-white hover:text-white backdrop-blur-sm",
   };
 
