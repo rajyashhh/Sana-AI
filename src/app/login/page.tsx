@@ -31,10 +31,10 @@ export default function LoginPage() {
           className="bg-slate-900/50 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Student Portal</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Teacher Portal</h1>
             <p className="text-slate-400 text-sm">Enter your credentials to access the Sana-AI Grid.</p>
             <div className="mt-2 text-xs bg-brand-primary/10 text-brand-primary py-1 px-3 rounded-full inline-block">
-              Default: student / sana123
+              Default: aakash / sanaai
             </div>
           </div>
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-slate-950/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-brand-primary transition-colors"
-                  placeholder="student"
+                  placeholder="Teacher"
                 />
               </div>
             </div>

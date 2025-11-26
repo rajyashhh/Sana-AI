@@ -26,8 +26,8 @@ export const Navbar = () => {
       ]
     : [
         { name: "Home", href: "/" },
-        { name: "About", href: "/#about" }, // Pointing to anchors on home
-        { name: "Features", href: "/#features" },
+        { name: "About", href: "/maintenance" }, // Pointing to anchors on home
+        { name: "Features", href: "/maintenance" },
       ];
 
   return (
@@ -71,7 +71,7 @@ export const Navbar = () => {
               {isAuthenticated ? (
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-white bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                    <User size={14} /> <span className="text-xs">Student</span>
+                    <User size={14} /> <span className="text-xs">Teacher</span>
                   </div>
                   <Button variant="outline" onClick={logout} className="text-sm px-4 h-10">
                     <LogOut size={16} className="mr-2" /> Logout

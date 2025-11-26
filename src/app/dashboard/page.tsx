@@ -10,7 +10,7 @@ export default function Dashboard() {
       <main className="min-h-screen bg-brand-dark pt-24 px-6">
         <Navbar />
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome back, Student.</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome back, Teacher.</h1>
           <p className="text-slate-400 mb-12">Here is your Sana-AI learning grid.</p>
           
           <div className="grid md:grid-cols-3 gap-6">
