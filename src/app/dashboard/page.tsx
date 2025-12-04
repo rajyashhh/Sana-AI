@@ -15,6 +15,13 @@ export default function Dashboard() {
           
           <div className="grid md:grid-cols-3 gap-6">
             <DashboardCard 
+              title="AI Tutor" 
+              icon={<Brain />} 
+              desc="Ask Sana about any topic." 
+              href="/tutor" 
+              color="bg-pink-600"
+            />
+            <DashboardCard 
               title="Resources" 
               icon={<Book />} 
               desc="Access 10,000+ books and papers." 
@@ -28,13 +35,7 @@ export default function Dashboard() {
               href="/schedule" 
               color="bg-violet-600"
             />
-            <DashboardCard 
-              title="AI Tutor" 
-              icon={<Brain />} 
-              desc="Ask Sana about any topic." 
-              href="/tutor" 
-              color="bg-pink-600"
-            />
+            
           </div>
         </div>
       </main>
