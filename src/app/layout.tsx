@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
-import "./globals.css"; 
+import { TRPCReactProvider } from "@/trpc/react";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,6 +11,10 @@ export const metadata: Metadata = {
   description: "AI-powered learning management system",
 };
 
+
+
+// ... imports remain same but ensuring TRPCReactProvider is imported
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,9 +22,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={inter.className}><AuthProvider>
-          {children}
-        </AuthProvider></body>
+      <body className={inter.className}>
+        <TRPCReactProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </TRPCReactProvider>
+      </body>
     </html>
   );
 }

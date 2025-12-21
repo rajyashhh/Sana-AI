@@ -4,16 +4,21 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  if (!isAuthenticated) return null; // Or a loading spinner
+  if (isLoading) {
+    // Optional: Add a nice spinner here
+    return <div className="min-h-screen flex items-center justify-center bg-brand-dark text-white">Loading...</div>;
+  }
+
+  if (!isAuthenticated) return null;
 
   return <>{children}</>;
 };

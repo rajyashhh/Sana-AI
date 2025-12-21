@@ -12,30 +12,36 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold text-white mb-2">Welcome back, Teacher.</h1>
           <p className="text-slate-400 mb-12">Here is your Sana-AI learning grid.</p>
-          
+
           <div className="grid md:grid-cols-3 gap-6">
-            <DashboardCard 
-              title="AI Tutor" 
-              icon={<Brain />} 
-              desc="Ask Sana about any topic." 
-              href="/tutor" 
+            <DashboardCard
+              title="AI Tutor"
+              icon={<Brain />}
+              desc="Ask Sana about any topic."
+              href="/tutor"
               color="bg-pink-600"
             />
-            <DashboardCard 
-              title="Resources" 
-              icon={<Book />} 
-              desc="Access 10,000+ books and papers." 
-              href="/resources" 
+            <DashboardCard
+              title="Resources"
+              icon={<Book />}
+              desc="Access 10,000+ books and papers."
+              href="/resources"
               color="bg-blue-600"
             />
-            <DashboardCard 
-              title="My Schedule" 
-              icon={<Calendar />} 
-              desc="View classes and upcoming exams." 
-              href="/schedule" 
+            <DashboardCard
+              title="My Schedule"
+              icon={<Calendar />}
+              desc="View classes and upcoming exams."
+              href="/schedule"
               color="bg-violet-600"
             />
-            
+            <DashboardCard
+              title="My Subjects"
+              icon={<Book />}
+              desc="Upload and manage subject books."
+              href="/subjects"
+              color="bg-orange-600"
+            />
           </div>
         </div>
       </main>

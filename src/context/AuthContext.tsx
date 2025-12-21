@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (u: string, p: string) => boolean;
   logout: () => void;
 }
@@ -12,12 +13,16 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   // Check localStorage on mount to persist login across refreshes
   useEffect(() => {
     const stored = localStorage.getItem("sana_auth");
-    if (stored === "true") setIsAuthenticated(true);
+    if (stored === "true") {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
   }, []);
 
   const login = (username: string, pass: string) => {
@@ -38,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
