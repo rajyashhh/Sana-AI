@@ -247,3 +247,157 @@ enum FeedbackType {
   THUMBS_UP
   THUMBS_DOWN
 }
+
+// ============ ADMIN MONITORING MODELS ============
+
+model Student {
+  id              String          @id @default(cuid())
+  name            String
+  email           String          @unique
+  sessionKey      String          @unique
+  isActive        Boolean         @default(true)
+  isFlagged       Boolean         @default(false)
+  flagReason      String?
+  totalQueries    Int             @default(0)
+  lastActive      DateTime        @default(now())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  queries         StudentQuery[]
+  careerInsight   CareerInsight?
+  flags           StudentFlag[]
+  activityLogs    ActivityLog[]
+
+  @@index([sessionKey])
+  @@index([isFlagged])
+  @@index([lastActive])
+}
+
+model StudentQuery {
+  id              String          @id @default(cuid())
+  studentId       String
+  query           String          @db.Text
+  response        String?         @db.Text
+  fileId          String?
+  subjectName     String?
+  category        QueryCategory   @default(GENERAL)
+  sentiment       QuerySentiment  @default(NEUTRAL)
+  isSuspicious    Boolean         @default(false)
+  suspicionReason String?
+  aiAnalysis      String?         @db.Text
+  responseTime    Int?            // in milliseconds
+  createdAt       DateTime        @default(now())
+
+  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  flags           StudentFlag[]
+
+  @@index([studentId])
+  @@index([isSuspicious])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model StudentFlag {
+  id              String          @id @default(cuid())
+  studentId       String
+  queryId         String?
+  flagType        FlagType
+  severity        FlagSeverity    @default(LOW)
+  reason          String
+  details         String?         @db.Text
+  isResolved      Boolean         @default(false)
+  resolvedBy      String?
+  resolvedAt      DateTime?
+  resolutionNote  String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  query           StudentQuery?   @relation(fields: [queryId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([flagType])
+  @@index([severity])
+  @@index([isResolved])
+}
+
+model CareerInsight {
+  id                  String    @id @default(cuid())
+  studentId           String    @unique
+  careerGoal          String?
+  interests           String[]  @default([])
+  strengths           String[]  @default([])
+  weaknesses          String[]  @default([])
+  recommendedPaths    String[]  @default([])
+  aiSummary           String?   @db.Text
+  lastAnalyzed        DateTime?
+  queryPatterns       Json?     // Stores query pattern analysis
+  subjectPreferences  Json?     // Stores subject engagement data
+  learningStyle       String?
+  motivationLevel     String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  student             Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model ActivityLog {
+  id            String        @id @default(cuid())
+  studentId     String?
+  action        String
+  details       Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime      @default(now())
+
+  student       Student?      @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model AdminSettings {
+  id                    String    @id @default(cuid())
+  suspiciousKeywords    String[]  @default([])
+  autoFlagThreshold     Int       @default(5)
+  enableAutoAnalysis    Boolean   @default(true)
+  analysisInterval      Int       @default(24) // hours
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+enum QueryCategory {
+  GENERAL
+  ACADEMIC
+  CAREER
+  PERSONAL
+  OFF_TOPIC
+  INAPPROPRIATE
+}
+
+enum QuerySentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  FRUSTRATED
+}
+
+enum FlagType {
+  INAPPROPRIATE_CONTENT
+  SUSPICIOUS_BEHAVIOR
+  ACADEMIC_DISHONESTY
+  HARASSMENT
+  SPAM
+  OFF_TOPIC
+  OTHER
+}
+
+enum FlagSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

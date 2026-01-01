@@ -2,7 +2,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import Link from "next/link";
-import { Book, Calendar, Brain } from "lucide-react";
+import { Book, Calendar, Brain, Shield } from "lucide-react";
 
 export default function Dashboard() {
   return (
@@ -41,6 +41,13 @@ export default function Dashboard() {
               desc="Upload and manage subject books."
               href="/subjects"
               color="bg-orange-600"
+            />
+            <DashboardCard
+              title="Admin Panel"
+              icon={<Shield />}
+              desc="Monitor students and manage Sana-AI."
+              href="/admin"
+              color="bg-red-600"
             />
           </div>
         </div>
