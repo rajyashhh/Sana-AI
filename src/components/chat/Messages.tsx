@@ -31,14 +31,14 @@ const Messages = ({ fileId }: MessagesProps) => {
     const messages = data?.pages.flatMap((page) => page.messages);
 
     const loadingMessage = {
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
         id: "loading-message",
         isUserMessage: false,
         text: (
             <span className="flex h-full items-center justify-center">
                 <Loader2 className="h-4 w-4 animate-spin" />
             </span>
-        ),
+        ) as unknown as string,
     };
 
     const combinedMessages = [

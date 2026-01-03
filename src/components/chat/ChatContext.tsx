@@ -174,7 +174,7 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
             setMessage(backupMessage.current);
             utils.file.getFileMessages.setData(
                 { fileId },
-                { messages: context?.previousMessages ?? [] }
+                { messages: context?.previousMessages ?? [], nextCursor: undefined }
             );
         },
         onSettled: async () => {

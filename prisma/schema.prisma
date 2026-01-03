@@ -8,52 +8,50 @@ datasource db {
 }
 
 model QuizAttempt {
-  id              String   @id @default(cuid())
-  fileId          String
-  chapterNumber   Int
-  sessionKey      String
-  score           Int
-  totalQuestions  Int      @default(10)
-  answers         Json
-  weakTopics      String[] @default([])
-  passed          Boolean  @default(false)
-  attemptNumber   Int      @default(1)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  File File @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  fileId         String
+  chapterNumber  Int
+  sessionKey     String
+  score          Int
+  totalQuestions Int      @default(10)
+  answers        Json
+  weakTopics     String[] @default([])
+  passed         Boolean  @default(false)
+  attemptNumber  Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  File           File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
   @@index([fileId, chapterNumber])
   @@index([sessionKey])
 }
 
 model LearningState {
-  id                 String   @id @default(cuid())
-  fileId             String   
-  sessionKey         String   @unique
-  currentChapter     Int      @default(1)
-  currentTopic       Int      @default(1)
-  learningPhase      String   @default("introduction")
-  chaptersCompleted  Int[]    @default([])
-  quizzesPassed      Int[]    @default([])
-  needsReview        Boolean  @default(false)
-  reviewTopics       String[] @default([])
-  messageCount       Int      @default(0)
-  lastInteraction    DateTime @default(now())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  
-  File File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  fileId            String
+  sessionKey        String   @unique
+  currentChapter    Int      @default(1)
+  currentTopic      Int      @default(1)
+  learningPhase     String   @default("introduction")
+  chaptersCompleted Int[]    @default([])
+  quizzesPassed     Int[]    @default([])
+  needsReview       Boolean  @default(false)
+  reviewTopics      String[] @default([])
+  messageCount      Int      @default(0)
+  lastInteraction   DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  File              File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }
+
 model File {
   id              String            @id @default(cuid())
   name            String
   uploadStatus    UploadStatus      @default(PENDING)
   url             String
   key             String
-
   usedOCR         Boolean           @default(false)
-  ocrText         String?           @db.Text()
+  ocrText         String?
   isScanned       Boolean           @default(false)
   ocrCompletedAt  DateTime?
   ocrProcessed    Boolean           @default(false)
@@ -61,44 +59,40 @@ model File {
   ocrStartedAt    DateTime?
   processedPages  Int?              @default(0)
   totalPages      Int?
-  
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-
-  Subject       Subject?          @relation(fields: [subjectId], references: [id])
-  subjectId     String?
-
-  Subfolder     Subfolder?        @relation(fields: [subfolderId], references: [id])
-  subfolderId   String?
-
-  quizAttempts  QuizAttempt[]
-  learningState LearningState[]
-
+  subjectId       String?
+  subfolderId     String?
   chapters        Chapter[]
   images          ExtractedImage[]
+  Subfolder       Subfolder?        @relation(fields: [subfolderId], references: [id])
+  Subject         Subject?          @relation(fields: [subjectId], references: [id])
+  learningState   LearningState[]
   messages        Message[]
   MessageFeedback MessageFeedback[]
+  quizAttempts    QuizAttempt[]
   QuizQuestion    QuizQuestion[]
   StudentProgress StudentProgress?
+  teachingPlans   TeachingPlan[]
 }
 
 model Subject {
-  id        String   @id @default(cuid())
-  name      String
-  files     File[]
+  id         String      @id @default(cuid())
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  files      File[]
   subfolders Subfolder[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Subfolder {
   id        String   @id @default(cuid())
   name      String
   subjectId String
-  Subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  files     File[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  files     File[]
+  Subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 }
 
 model Message {
@@ -175,13 +169,13 @@ model Topic {
 }
 
 model MessageFeedback {
-  id                String            @id @default(cuid())  // CHANGED: Added @default(cuid())
+  id                String            @id @default(cuid())
   messageId         String            @unique
   fileId            String
   feedbackType      FeedbackType
   feedbackReason    String?
   createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt  // CHANGED: Added @updatedAt
+  updatedAt         DateTime          @updatedAt
   correctedResponse String?
   feedbackCategory  FeedbackCategory?
   File              File              @relation(fields: [fileId], references: [id], onDelete: Cascade)
@@ -193,7 +187,7 @@ model MessageFeedback {
 }
 
 model QuizQuestion {
-  id            String   @id @default(cuid())  // CHANGED: Added @default(cuid())
+  id            String   @id @default(cuid())
   fileId        String
   chapterNumber Int
   question      String
@@ -201,16 +195,16 @@ model QuizQuestion {
   correctAnswer String
   explanation   String
   difficulty    String
-  topicCovered  String 
+  topicCovered  String
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt  // CHANGED: Added @updatedAt
+  updatedAt     DateTime @updatedAt
   File          File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   @@index([fileId, chapterNumber])
 }
 
 model StudentProgress {
-  id                String   @id @default(cuid())  // CHANGED: Added @default(cuid())
+  id                String   @id @default(cuid())
   fileId            String   @unique
   currentChapter    Int      @default(1)
   currentTopic      Int?
@@ -220,10 +214,167 @@ model StudentProgress {
   lastInteraction   DateTime @default(now())
   isFirstTime       Boolean  @default(true)
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt  // CHANGED: Added @updatedAt
+  updatedAt         DateTime @updatedAt
   File              File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   @@index([fileId])
+}
+
+model Student {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  sessionKey    String         @unique
+  isActive      Boolean        @default(true)
+  isFlagged     Boolean        @default(false)
+  flagReason    String?
+  totalQueries  Int            @default(0)
+  lastActive    DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  activityLogs  ActivityLog[]
+  careerInsight CareerInsight?
+  flags         StudentFlag[]
+  queries       StudentQuery[]
+
+  @@index([sessionKey])
+  @@index([isFlagged])
+  @@index([lastActive])
+}
+
+model StudentQuery {
+  id              String         @id @default(cuid())
+  studentId       String
+  query           String
+  response        String?
+  fileId          String?
+  subjectName     String?
+  category        QueryCategory  @default(GENERAL)
+  sentiment       QuerySentiment @default(NEUTRAL)
+  isSuspicious    Boolean        @default(false)
+  suspicionReason String?
+  aiAnalysis      String?
+  responseTime    Int?
+  createdAt       DateTime       @default(now())
+  flags           StudentFlag[]
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([isSuspicious])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model StudentFlag {
+  id             String        @id @default(cuid())
+  studentId      String
+  queryId        String?
+  flagType       FlagType
+  severity       FlagSeverity  @default(LOW)
+  reason         String
+  details        String?
+  isResolved     Boolean       @default(false)
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  resolutionNote String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  query          StudentQuery? @relation(fields: [queryId], references: [id])
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([flagType])
+  @@index([severity])
+  @@index([isResolved])
+}
+
+model CareerInsight {
+  id                 String    @id @default(cuid())
+  studentId          String    @unique
+  careerGoal         String?
+  interests          String[]  @default([])
+  strengths          String[]  @default([])
+  weaknesses         String[]  @default([])
+  recommendedPaths   String[]  @default([])
+  aiSummary          String?
+  lastAnalyzed       DateTime?
+  queryPatterns      Json?
+  subjectPreferences Json?
+  learningStyle      String?
+  motivationLevel    String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  student            Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  studentId String?
+  action    String
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  student   Student? @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model AdminSettings {
+  id                 String   @id @default(cuid())
+  suspiciousKeywords String[] @default([])
+  autoFlagThreshold  Int      @default(5)
+  enableAutoAnalysis Boolean  @default(true)
+  analysisInterval   Int      @default(24)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Class {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  section   String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  students           StudentRecord[]
+  teachingPlans      TeachingPlan[]
+  attendanceSessions AttendanceSession[]
+}
+
+model StudentRecord {
+  id         String        @id @default(cuid())
+  name       String
+  email      String?
+  mobile     String?
+  rollNumber String?
+  classId    String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  class      Class         @relation(fields: [classId], references: [id], onDelete: Cascade)
+  marks      SubjectMark[]
+  attendance AttendanceRecord[]
+
+  @@unique([classId, rollNumber])
+  @@index([classId])
+}
+
+model SubjectMark {
+  id              String        @id @default(cuid())
+  studentRecordId String
+  subjectName     String
+  marks           Float
+  maxMarks        Float         @default(100)
+  examType        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  studentRecord   StudentRecord @relation(fields: [studentRecordId], references: [id], onDelete: Cascade)
+
+  @@index([studentRecordId])
+  @@index([subjectName])
 }
 
 enum UploadStatus {
@@ -246,127 +397,6 @@ enum FeedbackCategory {
 enum FeedbackType {
   THUMBS_UP
   THUMBS_DOWN
-}
-
-// ============ ADMIN MONITORING MODELS ============
-
-model Student {
-  id              String          @id @default(cuid())
-  name            String
-  email           String          @unique
-  sessionKey      String          @unique
-  isActive        Boolean         @default(true)
-  isFlagged       Boolean         @default(false)
-  flagReason      String?
-  totalQueries    Int             @default(0)
-  lastActive      DateTime        @default(now())
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  queries         StudentQuery[]
-  careerInsight   CareerInsight?
-  flags           StudentFlag[]
-  activityLogs    ActivityLog[]
-
-  @@index([sessionKey])
-  @@index([isFlagged])
-  @@index([lastActive])
-}
-
-model StudentQuery {
-  id              String          @id @default(cuid())
-  studentId       String
-  query           String          @db.Text
-  response        String?         @db.Text
-  fileId          String?
-  subjectName     String?
-  category        QueryCategory   @default(GENERAL)
-  sentiment       QuerySentiment  @default(NEUTRAL)
-  isSuspicious    Boolean         @default(false)
-  suspicionReason String?
-  aiAnalysis      String?         @db.Text
-  responseTime    Int?            // in milliseconds
-  createdAt       DateTime        @default(now())
-
-  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  flags           StudentFlag[]
-
-  @@index([studentId])
-  @@index([isSuspicious])
-  @@index([category])
-  @@index([createdAt])
-}
-
-model StudentFlag {
-  id              String          @id @default(cuid())
-  studentId       String
-  queryId         String?
-  flagType        FlagType
-  severity        FlagSeverity    @default(LOW)
-  reason          String
-  details         String?         @db.Text
-  isResolved      Boolean         @default(false)
-  resolvedBy      String?
-  resolvedAt      DateTime?
-  resolutionNote  String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  query           StudentQuery?   @relation(fields: [queryId], references: [id], onDelete: SetNull)
-
-  @@index([studentId])
-  @@index([flagType])
-  @@index([severity])
-  @@index([isResolved])
-}
-
-model CareerInsight {
-  id                  String    @id @default(cuid())
-  studentId           String    @unique
-  careerGoal          String?
-  interests           String[]  @default([])
-  strengths           String[]  @default([])
-  weaknesses          String[]  @default([])
-  recommendedPaths    String[]  @default([])
-  aiSummary           String?   @db.Text
-  lastAnalyzed        DateTime?
-  queryPatterns       Json?     // Stores query pattern analysis
-  subjectPreferences  Json?     // Stores subject engagement data
-  learningStyle       String?
-  motivationLevel     String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-
-  student             Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-}
-
-model ActivityLog {
-  id            String        @id @default(cuid())
-  studentId     String?
-  action        String
-  details       Json?
-  ipAddress     String?
-  userAgent     String?
-  createdAt     DateTime      @default(now())
-
-  student       Student?      @relation(fields: [studentId], references: [id], onDelete: SetNull)
-
-  @@index([studentId])
-  @@index([action])
-  @@index([createdAt])
-}
-
-model AdminSettings {
-  id                    String    @id @default(cuid())
-  suspiciousKeywords    String[]  @default([])
-  autoFlagThreshold     Int       @default(5)
-  enableAutoAnalysis    Boolean   @default(true)
-  analysisInterval      Int       @default(24) // hours
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
 }
 
 enum QueryCategory {
@@ -400,4 +430,108 @@ enum FlagSeverity {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+// ============ TEACHER PLANNER ============
+
+model TeachingPlan {
+  id              String          @id @default(cuid())
+  name            String
+  fileId          String
+  classId         String?
+  startDate       DateTime
+  endDate         DateTime
+  totalDays       Int
+  chaptersTocover Int[]
+  status          PlanStatus      @default(DRAFT)
+  aiGeneratedPlan Json?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  file            File            @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  class           Class?          @relation(fields: [classId], references: [id], onDelete: SetNull)
+  dailyPlans      DailyPlan[]
+
+  @@index([fileId])
+  @@index([classId])
+  @@index([status])
+}
+
+model DailyPlan {
+  id              String        @id @default(cuid())
+  teachingPlanId  String
+  dayNumber       Int
+  date            DateTime?
+  chapterNumber   Int
+  topicsTocover   String[]
+  objectives      String[]
+  activities      String[]
+  estimatedTime   Int
+  isCompleted     Boolean       @default(false)
+  completedAt     DateTime?
+  teacherNotes    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  teachingPlan    TeachingPlan  @relation(fields: [teachingPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([teachingPlanId, dayNumber])
+  @@index([teachingPlanId])
+  @@index([date])
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+// ============ ATTENDANCE SYSTEM ============
+
+model AttendanceSession {
+  id              String              @id @default(cuid())
+  classId         String
+  date            DateTime
+  subjectName     String?
+  totalPresent    Int                 @default(0)
+  totalAbsent     Int                 @default(0)
+  totalLate       Int                 @default(0)
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  class           Class               @relation(fields: [classId], references: [id], onDelete: Cascade)
+  records         AttendanceRecord[]
+
+  @@unique([classId, date, subjectName])
+  @@index([classId])
+  @@index([date])
+}
+
+model AttendanceRecord {
+  id                  String              @id @default(cuid())
+  attendanceSessionId String
+  studentRecordId     String
+  status              AttendanceStatus    @default(PRESENT)
+  remarks             String?
+  markedAt            DateTime            @default(now())
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  attendanceSession   AttendanceSession   @relation(fields: [attendanceSessionId], references: [id], onDelete: Cascade)
+  studentRecord       StudentRecord       @relation(fields: [studentRecordId], references: [id], onDelete: Cascade)
+
+  @@unique([attendanceSessionId, studentRecordId])
+  @@index([attendanceSessionId])
+  @@index([studentRecordId])
+  @@index([status])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
 }

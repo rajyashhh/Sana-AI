@@ -21,8 +21,9 @@ export const Navbar = () => {
     ? [
         { name: "Dashboard", href: "/dashboard" },
         { name: "AI Tutor", href: "/tutor" },
+        { name: "Planner", href: "/planner" },
+        { name: "Attendance", href: "/attendance" },
         { name: "Resources", href: "/resources" },
-        { name: "Schedule", href: "/schedule" },
       ]
     : [
         { name: "Home", href: "/" },
