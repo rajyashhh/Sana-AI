@@ -50,6 +50,16 @@ export default function SubjectsPage() {
                                     onUploadError={(error: Error) => {
                                         alert(`ERROR! ${error.message}`);
                                     }}
+                                    onBeforeUploadBegin={(files) => {
+                                        return files.map((file) => {
+                                            const extension = file.name.split('.').pop();
+                                            const nameWithoutExtension = file.name.split('.').slice(0, -1).join('.');
+                                            const sanitizedName = nameWithoutExtension.replace(/[^a-zA-Z0-9-_]/g, "_");
+                                            const newName = `${sanitizedName}.${extension}`;
+                                            console.log(`Renaming ${file.name} -> ${newName}`);
+                                            return new File([file], newName, { type: file.type });
+                                        });
+                                    }}
                                     config={{ mode: "auto" }}
                                     className="ut-label:text-brand-primary ut-button:bg-brand-primary ut-button:ut-readying:bg-brand-primary/50"
                                 />

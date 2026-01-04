@@ -236,6 +236,7 @@ model Student {
   careerInsight CareerInsight?
   flags         StudentFlag[]
   queries       StudentQuery[]
+  testSubmissions TestSubmission[]
 
   @@index([sessionKey])
   @@index([isFlagged])
@@ -343,6 +344,7 @@ model Class {
   students           StudentRecord[]
   teachingPlans      TeachingPlan[]
   attendanceSessions AttendanceSession[]
+
 }
 
 model StudentRecord {
@@ -350,6 +352,7 @@ model StudentRecord {
   name       String
   email      String?
   mobile     String?
+  admissionNumber String? @unique
   rollNumber String?
   classId    String
   createdAt  DateTime      @default(now())
@@ -362,19 +365,31 @@ model StudentRecord {
   @@index([classId])
 }
 
+model Exam {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  date      DateTime @default(now())
+  marks     SubjectMark[]
+
+  @@index([name])
+}
+
 model SubjectMark {
   id              String        @id @default(cuid())
   studentRecordId String
   subjectName     String
   marks           Float
   maxMarks        Float         @default(100)
-  examType        String?
+  examId          String?
+  exam            Exam?         @relation(fields: [examId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   studentRecord   StudentRecord @relation(fields: [studentRecordId], references: [id], onDelete: Cascade)
 
   @@index([studentRecordId])
   @@index([subjectName])
+  @@index([examId])
+  @@unique([studentRecordId, subjectName, examId])
 }
 
 enum UploadStatus {
@@ -534,4 +549,44 @@ enum AttendanceStatus {
   ABSENT
   LATE
   EXCUSED
+}
+
+// ============ PERSONALITY TESTS ============
+
+model Test {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  questions   Question[]
+  submissions TestSubmission[]
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  testId    String
+  text      String
+  section   String   // e.g., "A", "B" (Mapped to traits)
+  order     Int
+  
+  test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+}
+
+model TestSubmission {
+  id          String   @id @default(cuid())
+  testId      String
+  studentId   String?  // Optional, if we want to track who took it
+  answers     Json     // Store raw answers { questionId: value }
+  scores      Json     // Store calculated trait scores { extraversion: 20, ... }
+  completedAt DateTime @default(now())
+  
+  test        Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student     Student? @relation(fields: [studentId], references: [id]) // Assuming Student model exists or linking to User
+
+  @@index([testId])
+  @@index([studentId])
 }

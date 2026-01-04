@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { api } from "@/trpc/react";
+import { ClassManagement } from "@/components/admin/classes/ClassManagement";
+import { MarksManagement } from "@/components/admin/MarksManagement";
 import {
   Users,
   MessageSquare,
@@ -21,9 +23,11 @@ import {
   Activity,
   Target,
   Sparkles,
+  GraduationCap,
+  School,
 } from "lucide-react";
 
-type TabType = "overview" | "students" | "queries" | "flags" | "settings";
+type TabType = "overview" | "classes" | "students" | "queries" | "flags" | "settings" | "marks";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -50,7 +54,9 @@ export default function AdminDashboard() {
           <div className="flex gap-2 mb-8 border-b border-white/10 pb-4">
             {[
               { id: "overview", label: "Overview", icon: BarChart3 },
+              { id: "classes", label: "Classes", icon: School },
               { id: "students", label: "Students", icon: Users },
+              { id: "marks", label: "Marks", icon: GraduationCap },
               { id: "queries", label: "Queries", icon: MessageSquare },
               { id: "flags", label: "Flags", icon: Flag },
               { id: "settings", label: "Settings", icon: Settings },
@@ -58,11 +64,10 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeTab === tab.id
-                    ? "bg-gradient-to-r from-pink-600 to-violet-600 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${activeTab === tab.id
+                  ? "bg-gradient-to-r from-pink-600 to-violet-600 text-white"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
@@ -72,7 +77,9 @@ export default function AdminDashboard() {
 
           {/* Tab Content */}
           {activeTab === "overview" && <OverviewTab />}
+          {activeTab === "classes" && <ClassManagement />}
           {activeTab === "students" && <StudentsTab />}
+          {activeTab === "marks" && <MarksManagement />}
           {activeTab === "queries" && <QueriesTab />}
           {activeTab === "flags" && <FlagsTab />}
           {activeTab === "settings" && <SettingsTab />}
@@ -212,11 +219,10 @@ function StudentsTab() {
         </div>
         <button
           onClick={() => setFilterFlagged(!filterFlagged)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
-            filterFlagged
-              ? "bg-red-500/20 border-red-500/50 text-red-400"
-              : "bg-slate-800 border-white/10 text-slate-400"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${filterFlagged
+            ? "bg-red-500/20 border-red-500/50 text-red-400"
+            : "bg-slate-800 border-white/10 text-slate-400"
+            }`}
         >
           <Filter className="w-4 h-4" />
           Flagged Only
@@ -491,11 +497,10 @@ function StudentDetailModal({
               {student?.queries.slice(0, 20).map((query: any) => (
                 <div
                   key={query.id}
-                  className={`p-4 rounded-xl border ${
-                    query.isSuspicious
-                      ? "bg-red-500/10 border-red-500/30"
-                      : "bg-slate-800/50 border-white/5"
-                  }`}
+                  className={`p-4 rounded-xl border ${query.isSuspicious
+                    ? "bg-red-500/10 border-red-500/30"
+                    : "bg-slate-800/50 border-white/5"
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -528,25 +533,23 @@ function StudentDetailModal({
                 {student.flags.map((flag: any) => (
                   <div
                     key={flag.id}
-                    className={`p-4 rounded-xl border ${
-                      flag.isResolved
-                        ? "bg-slate-800/30 border-white/5"
-                        : "bg-red-500/10 border-red-500/30"
-                    }`}
+                    className={`p-4 rounded-xl border ${flag.isResolved
+                      ? "bg-slate-800/30 border-white/5"
+                      : "bg-red-500/10 border-red-500/30"
+                      }`}
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-xs px-2 py-0.5 rounded ${
-                              flag.severity === "CRITICAL"
-                                ? "bg-red-600 text-white"
-                                : flag.severity === "HIGH"
-                                  ? "bg-orange-500/20 text-orange-400"
-                                  : flag.severity === "MEDIUM"
-                                    ? "bg-yellow-500/20 text-yellow-400"
-                                    : "bg-slate-500/20 text-slate-400"
-                            }`}
+                            className={`text-xs px-2 py-0.5 rounded ${flag.severity === "CRITICAL"
+                              ? "bg-red-600 text-white"
+                              : flag.severity === "HIGH"
+                                ? "bg-orange-500/20 text-orange-400"
+                                : flag.severity === "MEDIUM"
+                                  ? "bg-yellow-500/20 text-yellow-400"
+                                  : "bg-slate-500/20 text-slate-400"
+                              }`}
                           >
                             {flag.severity}
                           </span>
@@ -609,11 +612,10 @@ function QueriesTab() {
       <div className="flex gap-4 items-center flex-wrap">
         <button
           onClick={() => setOnlySuspicious(!onlySuspicious)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
-            onlySuspicious
-              ? "bg-red-500/20 border-red-500/50 text-red-400"
-              : "bg-slate-800 border-white/10 text-slate-400"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${onlySuspicious
+            ? "bg-red-500/20 border-red-500/50 text-red-400"
+            : "bg-slate-800 border-white/10 text-slate-400"
+            }`}
         >
           <AlertTriangle className="w-4 h-4" />
           Suspicious Only
@@ -638,9 +640,8 @@ function QueriesTab() {
         {data?.queries.map((query: any) => (
           <div
             key={query.id}
-            className={`bg-slate-900 rounded-xl border p-4 ${
-              query.isSuspicious ? "border-red-500/30" : "border-white/10"
-            }`}
+            className={`bg-slate-900 rounded-xl border p-4 ${query.isSuspicious ? "border-red-500/30" : "border-white/10"
+              }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -752,11 +753,10 @@ function FlagsTab() {
       <div className="flex gap-4 items-center flex-wrap">
         <button
           onClick={() => setOnlyUnresolved(!onlyUnresolved)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
-            onlyUnresolved
-              ? "bg-orange-500/20 border-orange-500/50 text-orange-400"
-              : "bg-slate-800 border-white/10 text-slate-400"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${onlyUnresolved
+            ? "bg-orange-500/20 border-orange-500/50 text-orange-400"
+            : "bg-slate-800 border-white/10 text-slate-400"
+            }`}
         >
           <AlertTriangle className="w-4 h-4" />
           Unresolved Only
@@ -785,23 +785,21 @@ function FlagsTab() {
           data?.flags.map((flag: any) => (
             <div
               key={flag.id}
-              className={`bg-slate-900 rounded-xl border p-4 ${
-                flag.isResolved ? "border-white/10 opacity-60" : "border-red-500/30"
-              }`}
+              className={`bg-slate-900 rounded-xl border p-4 ${flag.isResolved ? "border-white/10 opacity-60" : "border-red-500/30"
+                }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className={`text-xs px-2 py-0.5 rounded font-medium ${
-                        flag.severity === "CRITICAL"
-                          ? "bg-red-600 text-white"
-                          : flag.severity === "HIGH"
-                            ? "bg-orange-500/20 text-orange-400"
-                            : flag.severity === "MEDIUM"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-slate-500/20 text-slate-400"
-                      }`}
+                      className={`text-xs px-2 py-0.5 rounded font-medium ${flag.severity === "CRITICAL"
+                        ? "bg-red-600 text-white"
+                        : flag.severity === "HIGH"
+                          ? "bg-orange-500/20 text-orange-400"
+                          : flag.severity === "MEDIUM"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-slate-500/20 text-slate-400"
+                        }`}
                     >
                       {flag.severity}
                     </span>
@@ -952,14 +950,12 @@ function SettingsTab() {
             </div>
             <button
               onClick={() => setAutoAnalysis(!autoAnalysis)}
-              className={`w-12 h-6 rounded-full transition-colors ${
-                autoAnalysis ? "bg-pink-600" : "bg-slate-600"
-              }`}
+              className={`w-12 h-6 rounded-full transition-colors ${autoAnalysis ? "bg-pink-600" : "bg-slate-600"
+                }`}
             >
               <div
-                className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                  autoAnalysis ? "translate-x-6" : "translate-x-1"
-                }`}
+                className={`w-5 h-5 bg-white rounded-full transition-transform ${autoAnalysis ? "translate-x-6" : "translate-x-1"
+                  }`}
               />
             </button>
           </div>
@@ -1022,9 +1018,8 @@ function StatCard({
 }) {
   return (
     <div
-      className={`bg-slate-900 rounded-2xl border p-6 ${
-        alert ? "border-red-500/50" : "border-white/10"
-      }`}
+      className={`bg-slate-900 rounded-2xl border p-6 ${alert ? "border-red-500/50" : "border-white/10"
+        }`}
     >
       <div className="flex items-center justify-between">
         <div>

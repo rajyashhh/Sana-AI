@@ -17,25 +17,25 @@ export const Navbar = () => {
   });
 
   // Dynamic Links based on Auth
-  const navLinks = isAuthenticated 
+  const navLinks = isAuthenticated
     ? [
-        { name: "Dashboard", href: "/dashboard" },
-        { name: "AI Tutor", href: "/tutor" },
-        { name: "Planner", href: "/planner" },
-        { name: "Attendance", href: "/attendance" },
-        { name: "Resources", href: "/resources" },
-      ]
+      { name: "Dashboard", href: "/dashboard" },
+      { name: "AI Tutor", href: "/tutor" },
+      { name: "Planner", href: "/planner" },
+      { name: "Attendance", href: "/attendance" },
+      { name: "Resources", href: "/resources" },
+      { name: "Tests", href: "/dashboard/tests" },
+    ]
     : [
-        { name: "Home", href: "/" },
-        { name: "About", href: "/maintenance" }, // Pointing to anchors on home
-        { name: "Features", href: "/maintenance" },
-      ];
+      { name: "Home", href: "/" },
+      { name: "About", href: "/maintenance" }, // Pointing to anchors on home
+      { name: "Features", href: "/maintenance" },
+    ];
 
   return (
     <motion.nav
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-brand-dark/80 backdrop-blur-md border-b border-white/10 py-2" : "bg-transparent py-6"
-      }`}
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-brand-dark/80 backdrop-blur-md border-b border-white/10 py-2" : "bg-transparent py-6"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
@@ -63,7 +63,7 @@ export const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -113,12 +113,12 @@ export const Navbar = () => {
             </Link>
           ))}
           {!isAuthenticated && (
-             <Link href="/login" onClick={() => setIsOpen(false)}>
-                <Button variant="accent" className="w-full justify-center">Login</Button>
-             </Link>
+            <Link href="/login" onClick={() => setIsOpen(false)}>
+              <Button variant="accent" className="w-full justify-center">Login</Button>
+            </Link>
           )}
-           {isAuthenticated && (
-             <Button variant="outline" onClick={() => { logout(); setIsOpen(false); }} className="w-full justify-center">Logout</Button>
+          {isAuthenticated && (
+            <Button variant="outline" onClick={() => { logout(); setIsOpen(false); }} className="w-full justify-center">Logout</Button>
           )}
         </div>
       </motion.div>

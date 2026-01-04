@@ -737,4 +737,338 @@ Respond in JSON format:
 
     return { analyzed: results.filter((r) => r.status === "success").length, results };
   }),
+
+  // ============ MARKS MANAGEMENT ============
+  getClasses: publicProcedure.query(async ({ ctx }) => {
+    const classes = await ctx.db.class.findMany({
+      include: {
+        _count: {
+          select: { students: true },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return classes.map((c) => ({
+      id: c.id,
+      name: c.name,
+      section: c.section,
+      studentCount: c._count.students,
+    }));
+  }),
+
+  getStudentsByClass: publicProcedure
+    .input(z.object({ classId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.studentRecord.findMany({
+        where: { classId: input.classId },
+        include: {
+          marks: true,
+        },
+        orderBy: { name: "asc" },
+      });
+    }),
+
+
+  createClass: publicProcedure
+    .input(z.object({ name: z.string(), section: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if class exists
+      const existing = await ctx.db.class.findFirst({
+        where: { name: input.name },
+      });
+
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Class with this name already exists",
+        });
+      }
+
+      return ctx.db.class.create({
+        data: {
+          name: input.name,
+          section: input.section,
+        },
+      });
+    }),
+
+  createStudent: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        classId: z.string(),
+        rollNumber: z.string().optional(),
+        admissionNumber: z.string().optional(),
+        email: z.string().email().optional(),
+        mobile: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Check duplicate admission number if provided
+      if (input.admissionNumber) {
+        const existing = await ctx.db.studentRecord.findUnique({
+          where: { admissionNumber: input.admissionNumber },
+        });
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Admission Number ${input.admissionNumber} already exists`,
+          });
+        }
+      }
+
+      // Check duplicate roll number in same class if provided
+      if (input.rollNumber) {
+        const existing = await ctx.db.studentRecord.findUnique({
+          where: {
+            classId_rollNumber: {
+              classId: input.classId,
+              rollNumber: input.rollNumber,
+            },
+          },
+        });
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Roll Number ${input.rollNumber} already exists in this class`,
+          });
+        }
+      }
+
+      return ctx.db.studentRecord.create({
+        data: {
+          name: input.name,
+          classId: input.classId,
+          rollNumber: input.rollNumber,
+          admissionNumber: input.admissionNumber,
+          email: input.email,
+          mobile: input.mobile,
+        },
+      });
+    }),
+
+  bulkImportStudents: publicProcedure
+    .input(
+      z.object({
+        classId: z.string(),
+        students: z.array(
+          z.object({
+            name: z.string(),
+            rollNumber: z.string().optional(),
+            admissionNumber: z.string().optional(),
+            email: z.string().optional(),
+            mobile: z.string().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [] as string[],
+      };
+
+      for (const student of input.students) {
+        try {
+          // Check duplicates manually to provide detailed errors
+          if (student.rollNumber) {
+            const existingRoll = await ctx.db.studentRecord.findFirst({
+              where: {
+                classId: input.classId,
+                rollNumber: String(student.rollNumber),
+              },
+            });
+            if (existingRoll) {
+              // Update existing student instead of failing?
+              // For now, let's update if found, or create new.
+              // Actually, user requested "create", let's upsert based on rollno if present
+              await ctx.db.studentRecord.update({
+                where: { id: existingRoll.id },
+                data: {
+                  name: student.name,
+                  admissionNumber: student.admissionNumber,
+                  email: student.email,
+                  mobile: student.mobile,
+                }
+              });
+              results.success++;
+              continue;
+            }
+          }
+
+          if (student.admissionNumber) {
+            const existingAdm = await ctx.db.studentRecord.findUnique({
+              where: { admissionNumber: String(student.admissionNumber) },
+            });
+            if (existingAdm) {
+              // For safety, fail if admission number conflicts with DIFFERENT student (not implementing complex merge logic yet)
+              results.failed++;
+              results.errors.push(`Admission No ${student.admissionNumber} already exists for ${existingAdm.name}`);
+              continue;
+            }
+          }
+
+          // Create new
+          await ctx.db.studentRecord.create({
+            data: {
+              name: student.name,
+              classId: input.classId,
+              rollNumber: student.rollNumber ? String(student.rollNumber) : undefined,
+              admissionNumber: student.admissionNumber ? String(student.admissionNumber) : undefined,
+              email: student.email,
+              mobile: student.mobile,
+            },
+          });
+          results.success++;
+        } catch (error) {
+          results.failed++;
+          results.errors.push(
+            `Failed to import ${student.name}: ${(error as Error).message}`
+          );
+        }
+      }
+
+      return results;
+    }),
+
+  // ============ EXAM & MARKS MANAGEMENT ============
+
+  createExam: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.exam.findUnique({
+        where: {
+          name: input.name,
+        },
+      });
+
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Exam with this name already exists",
+        });
+      }
+
+      return ctx.db.exam.create({
+        data: {
+          name: input.name,
+        },
+      });
+    }),
+
+  getExams: publicProcedure
+    .query(async ({ ctx }) => {
+      return ctx.db.exam.findMany({
+        orderBy: { date: "desc" },
+      });
+    }),
+
+  uploadMarksBulk: publicProcedure
+    .input(
+      z.object({
+        classId: z.string(),
+        examId: z.string(),
+        marks: z.array(
+          z.object({
+            rollNumber: z.string(), // We use roll number to match students
+            subject: z.string(),
+            score: z.number(),
+            maxMarks: z.number().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [] as string[],
+      };
+
+      // Get all students in this class to map roll numbers to IDs
+      const students = await ctx.db.studentRecord.findMany({
+        where: { classId: input.classId },
+      });
+
+      const studentMap = new Map(students.map((s) => [s.rollNumber, s]));
+
+      for (const mark of input.marks) {
+        const student = studentMap.get(mark.rollNumber);
+
+        if (!student) {
+          results.failed++;
+          results.errors.push(`Student with Roll No ${mark.rollNumber} not found`);
+          continue;
+        }
+
+        try {
+          // Use upsert with the unique constraint
+          await ctx.db.subjectMark.upsert({
+            where: {
+              studentRecordId_subjectName_examId: {
+                studentRecordId: student.id,
+                subjectName: mark.subject,
+                examId: input.examId,
+              },
+            },
+            update: {
+              marks: mark.score,
+              maxMarks: mark.maxMarks || 100,
+            },
+            create: {
+              studentRecordId: student.id,
+              subjectName: mark.subject,
+              marks: mark.score,
+              maxMarks: mark.maxMarks || 100,
+              examId: input.examId,
+            },
+          });
+          results.success++;
+        } catch (error) {
+          console.error("Mark upload error:", error);
+          results.failed++;
+          results.errors.push(
+            `Failed to update ${mark.subject} for Roll No ${mark.rollNumber}: ${(error as Error).message}`
+          );
+        }
+      }
+
+      return results;
+    }),
+
+  updateStudentMark: publicProcedure
+    .input(
+      z.object({
+        studentRecordId: z.string(),
+        examId: z.string(),
+        subjectName: z.string(),
+        marks: z.number(),
+        maxMarks: z.number().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.subjectMark.upsert({
+        where: {
+          studentRecordId_subjectName_examId: {
+            studentRecordId: input.studentRecordId,
+            subjectName: input.subjectName,
+            examId: input.examId,
+          },
+        },
+        update: {
+          marks: input.marks,
+          maxMarks: input.maxMarks || 100,
+        },
+        create: {
+          studentRecordId: input.studentRecordId,
+          subjectName: input.subjectName,
+          marks: input.marks,
+          maxMarks: input.maxMarks || 100,
+          examId: input.examId,
+        },
+      });
+    }),
 });
+
